@@ -5,12 +5,16 @@ import { useNavigate } from 'react-router-dom'
 import { addUser, removeUser } from '../utils/userSlice'
 import { useDispatch, useSelector } from 'react-redux'
 import { LOGO } from '../utils/constants'
+import { toggleGptSearchView } from '../utils/gptSlice'
+import { SUPPORTED_LANGUAGES } from '../utils/languageConstants'
+import { changeLanguage } from '../utils/configSlice'
 
 const Header = () => {
 
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const user = useSelector(store => store.user);
+    const showGptSearch = useSelector(store => store.gpt.showGptSearch);
 
     const handleSignOut = () =>{
         signOut(auth).then(() => {})
@@ -18,7 +22,6 @@ const Header = () => {
             navigate("/error");
         });
     }
-
 
     // To add user or remove user from store on signin/signup and signout
     useEffect(() =>{
@@ -39,6 +42,16 @@ const Header = () => {
     },[]);
 
 
+    const handleGptSearchClick = () =>{
+        // Toggle GPT Search
+        dispatch(toggleGptSearchView());
+    };
+
+    const handleLanguageChange = (e) =>{
+        dispatch(changeLanguage(e.target.value));
+    }
+
+
   return (
     <div className='absolute w-screen px-8 pt-2 bg-gradient-to-b from-black z-10 flex justify-between'>
         <img className='w-44'
@@ -46,6 +59,16 @@ const Header = () => {
         </img>
         
         {user && <div className='flex px-2'>
+
+            {showGptSearch && <select onChange={handleLanguageChange} className='bg-gray-900 text-white cursor-pointer h-6 mt-5'>
+                {SUPPORTED_LANGUAGES.map(lang => 
+                <option key={lang.identifier} value={lang.identifier}>{lang.name}</option>)}
+            </select>}
+
+            <button className='h-10 px-4 m-2 mx-4 my-3 bg-purple-800 hover:bg-purple-700 text-white rounded-lg' onClick={handleGptSearchClick}>
+                {showGptSearch ? "Home Page" : "GPT Search"}
+            </button>
+
             <img className='w-13 h-14 p-2'
             src={user?.photoURL}></img>
 
